@@ -1,12 +1,13 @@
 use amethyst::assets::{AssetStorage, Loader};
 use amethyst::core::nalgebra::Vector3;
 use amethyst::core::transform::Transform;
-use amethyst::ecs::prelude::{Component, DenseVecStorage};
 use amethyst::prelude::*;
 use amethyst::renderer::{
     Camera, PngFormat, Projection, SpriteRender, SpriteSheet, SpriteSheetFormat, SpriteSheetHandle,
     Texture, TextureMetadata, Transparent,
 };
+
+use crate::components::{Particle, Velocity};
 
 pub const ARENA_HEIGHT: f32 = 500.0;
 pub const ARENA_WIDTH: f32 = 500.0;
@@ -21,25 +22,6 @@ impl SimpleState for CloudChamber {
         initialise_particles(world, sprite_sheet_handle);
         initialise_camera(world);
     }
-}
-
-pub struct Particle {}
-
-impl Particle {
-    fn new() -> Particle {
-        Particle {}
-    }
-}
-impl Component for Particle {
-    type Storage = DenseVecStorage<Self>;
-}
-
-pub struct Velocity {
-    pub v: Vector3<f32>,
-}
-
-impl Component for Velocity {
-    type Storage = DenseVecStorage<Self>;
 }
 
 fn initialise_camera(world: &mut World) {

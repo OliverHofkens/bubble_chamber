@@ -1,4 +1,4 @@
-use crate::cloudchamber::{Particle, Velocity};
+use crate::components::{Particle, Velocity};
 use amethyst::core::timing::Time;
 use amethyst::core::Transform;
 use amethyst::ecs::{Join, Read, ReadStorage, System, WriteStorage};
@@ -14,7 +14,7 @@ impl<'s> System<'s> for MoveParticleSystem {
     );
 
     fn run(&mut self, (particles, velocities, mut transforms, time): Self::SystemData) {
-        for (particle, velocity, transform) in (&particles, &velocities, &mut transforms).join() {
+        for (_particle, velocity, transform) in (&particles, &velocities, &mut transforms).join() {
             let movements = velocity.v * time.delta_seconds();
             transform.translate_xyz(movements[0], movements[1], movements[2]);
         }

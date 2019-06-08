@@ -6,6 +6,7 @@ use amethyst::renderer::{
 };
 use amethyst::utils::application_root_dir;
 mod cloudchamber;
+mod components;
 mod systems;
 
 use crate::cloudchamber::CloudChamber;
