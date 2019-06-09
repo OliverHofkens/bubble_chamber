@@ -1,12 +1,15 @@
 extern crate amethyst;
+
 use amethyst::core::transform::TransformBundle;
 use amethyst::prelude::*;
 use amethyst::renderer::{
     ColorMask, DisplayConfig, DrawFlat2D, Pipeline, RenderBundle, Stage, ALPHA,
 };
 use amethyst::utils::application_root_dir;
+
 mod cloudchamber;
 mod components;
+mod resources;
 mod systems;
 
 use crate::cloudchamber::CloudChamber;
@@ -30,7 +33,8 @@ fn main() -> amethyst::Result<()> {
                 .with_sprite_visibility_sorting(&[]),
         )?
         .with_bundle(TransformBundle::new())?
-        .with(systems::MoveParticleSystem, "move_particle_system", &[]);
+        .with(systems::MoveByVelocity, "move_by_velocity", &[])
+        .with(systems::MagneticForce, "magnetic_force", &[]);
 
     let mut game = Application::new("./", CloudChamber, game_data)?;
 

@@ -9,13 +9,22 @@ impl Component for Velocity {
     type Storage = DenseVecStorage<Self>;
 }
 
-pub struct Particle {}
+pub struct Particle {
+    pub charges: [usize; 3],
+    pub total_charge: isize,
+    pub mass: usize,
+}
 
 impl Particle {
-    pub fn new() -> Particle {
-        Particle {}
+    pub fn new(charges: [usize; 3]) -> Particle {
+        Particle {
+            charges: charges,
+            total_charge: charges[0] as isize + (charges[2] as isize * -1),
+            mass: charges.iter().sum(),
+        }
     }
 }
+
 impl Component for Particle {
     type Storage = DenseVecStorage<Self>;
 }

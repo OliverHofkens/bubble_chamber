@@ -1,3 +1,3 @@
 mod particle;
 
-pub use self::particle::MoveParticleSystem;
+pub use self::particle::{MagneticForce, MoveByVelocity};

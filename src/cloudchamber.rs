@@ -8,6 +8,7 @@ use amethyst::renderer::{
 };
 
 use crate::components::{Particle, Velocity};
+use crate::resources::MagneticField;
 
 pub const ARENA_HEIGHT: f32 = 500.0;
 pub const ARENA_WIDTH: f32 = 500.0;
@@ -21,6 +22,10 @@ impl SimpleState for CloudChamber {
 
         initialise_particles(world, sprite_sheet_handle);
         initialise_camera(world);
+
+        world.add_resource(MagneticField {
+            field: Vector3::new(0.0, 0.0, 5.0),
+        });
     }
 }
 
@@ -55,10 +60,10 @@ fn initialise_particles(world: &mut World, sprite_sheet: SpriteSheetHandle) {
 
     world
         .create_entity()
-        .with(Particle::new())
+        .with(Particle::new([10, 0, 9]))
         .with(transform)
         .with(Velocity {
-            v: Vector3::new(10.0, 0.0, 0.0),
+            v: Vector3::new(50.0, 0.0, 0.0),
         })
         .with(sprite_render.clone())
         .with(Transparent)
