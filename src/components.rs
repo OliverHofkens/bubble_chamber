@@ -8,3 +8,14 @@ pub struct Velocity {
 impl Component for Velocity {
     type Storage = DenseVecStorage<Self>;
 }
+
+pub struct Particle {}
+
+impl Particle {
+    pub fn new() -> Particle {
+        Particle {}
+    }
+}
+impl Component for Particle {
+    type Storage = DenseVecStorage<Self>;
+}
