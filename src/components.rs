@@ -19,10 +19,16 @@ pub struct Particle {
 
 impl Particle {
     pub fn new(charges: [usize; 3]) -> Particle {
+        let mass = charges.iter().sum();
+
+        if mass == 0 {
+            panic!("Cannot create a zero-mass particle!");
+        }
+
         Particle {
             charges: charges,
             total_charge: charges[0] as isize + (charges[2] as isize * -1),
-            mass: charges.iter().sum(),
+            mass: mass,
         }
     }
 }

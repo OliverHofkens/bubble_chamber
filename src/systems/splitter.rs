@@ -1,67 +1,13 @@
-use amethyst::core::timing::Time;
-use amethyst::core::Transform;
-use amethyst::ecs::{Entities, Join, Read, ReadExpect, ReadStorage, System, WriteStorage};
-use amethyst::renderer::{SpriteRender, Transparent};
-use log::{info, trace, warn};
-use rand::distributions::{Distribution, Poisson};
-use rand::Rng;
 use std::cmp;
 
+use amethyst::core::Transform;
+use amethyst::ecs::{Entities, Join, System, WriteStorage};
+use amethyst::renderer::{SpriteRender, Transparent};
+use log::info;
+use rand::distributions::{Distribution, Poisson};
+use rand::Rng;
+
 use crate::components::{LifeTime, Particle, Velocity};
-use crate::resources::MagneticField;
-
-pub struct MoveByVelocity;
-
-impl<'s> System<'s> for MoveByVelocity {
-    type SystemData = (
-        ReadStorage<'s, Particle>,
-        ReadStorage<'s, Velocity>,
-        WriteStorage<'s, Transform>,
-        Read<'s, Time>,
-    );
-
-    fn run(&mut self, (particles, velocities, mut transforms, time): Self::SystemData) {
-        for (_particle, velocity, transform) in (&particles, &velocities, &mut transforms).join() {
-            let movements = velocity.v * time.delta_seconds();
-            transform.translate_xyz(movements[0], movements[1], movements[2]);
-        }
-    }
-}
-
-pub struct MagneticForce;
-
-impl<'s> System<'s> for MagneticForce {
-    type SystemData = (
-        ReadStorage<'s, Particle>,
-        WriteStorage<'s, Velocity>,
-        ReadExpect<'s, MagneticField>,
-        Read<'s, Time>,
-    );
-
-    fn run(&mut self, (particles, mut velocities, magnetic_field, time): Self::SystemData) {
-        for (particle, velocity) in (&particles, &mut velocities).join() {
-            // Magnetic component of Lorentz force:
-            let force = particle.total_charge as f32 * (velocity.v.cross(&magnetic_field.field));
-
-            // (F = m.a), so (a = F/m)
-            let acceleration = force / particle.mass as f32;
-
-            velocity.v += acceleration;
-        }
-    }
-}
-
-pub struct LifeTimeCounter;
-
-impl<'s> System<'s> for LifeTimeCounter {
-    type SystemData = (WriteStorage<'s, LifeTime>, Read<'s, Time>);
-
-    fn run(&mut self, (mut lifetimes, time): Self::SystemData) {
-        for lifetime in (&mut lifetimes).join() {
-            lifetime.t += time.delta_seconds();
-        }
-    }
-}
 
 pub struct ParticleSplitter;
 
@@ -101,7 +47,7 @@ impl<'s> System<'s> for ParticleSplitter {
             .join()
         {
             // TODO: Sample from exponential decay distribution?
-            if lifetime.t < 2.0 {
+            if lifetime.t < 2.0 || particle.mass == 1 {
                 continue;
             }
 
@@ -150,12 +96,12 @@ impl ParticleSplitter {
                 0
             };
             let neutral = if charges_left[1] > 0 {
-                random.gen_range(0, charges_left[0])
+                random.gen_range(0, charges_left[1])
             } else {
                 0
             };
             let neg = if charges_left[2] > 0 {
-                random.gen_range(0, charges_left[0])
+                random.gen_range(0, charges_left[2])
             } else {
                 0
             };
@@ -173,10 +119,6 @@ impl ParticleSplitter {
             ));
         }
 
-        info!(
-            "New particle with charge {},{},{}",
-            charges_left[0], charges_left[1], charges_left[2]
-        );
         // Remaining charges go to final particle
         results.push((
             Particle::new(charges_left),
@@ -184,6 +126,10 @@ impl ParticleSplitter {
             velocity.clone(),
             sprite.clone(),
         ));
+        info!(
+            "New particle with charge {},{},{}",
+            charges_left[0], charges_left[1], charges_left[2]
+        );
 
         results
     }
