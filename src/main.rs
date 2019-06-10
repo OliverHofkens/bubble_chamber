@@ -33,8 +33,10 @@ fn main() -> amethyst::Result<()> {
                 .with_sprite_visibility_sorting(&[]),
         )?
         .with_bundle(TransformBundle::new())?
+        .with(systems::LifeTimeCounter, "lifetime_counter", &[])
         .with(systems::MoveByVelocity, "move_by_velocity", &[])
-        .with(systems::MagneticForce, "magnetic_force", &[]);
+        .with(systems::MagneticForce, "magnetic_force", &[])
+        .with(systems::ParticleSplitter, "particle_splitter", &[]);
 
     let mut game = Application::new("./", CloudChamber, game_data)?;
 

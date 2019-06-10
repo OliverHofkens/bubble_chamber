@@ -1,3 +1,3 @@
 mod particle;
 
-pub use self::particle::{MagneticForce, MoveByVelocity};
+pub use self::particle::{LifeTimeCounter, MagneticForce, MoveByVelocity, ParticleSplitter};

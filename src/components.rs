@@ -28,3 +28,17 @@ impl Particle {
 impl Component for Particle {
     type Storage = DenseVecStorage<Self>;
 }
+
+pub struct LifeTime {
+    pub t: f32,
+}
+
+impl Component for LifeTime {
+    type Storage = DenseVecStorage<Self>;
+}
+
+impl LifeTime {
+    pub fn new() -> LifeTime {
+        LifeTime { t: 0.0 }
+    }
+}

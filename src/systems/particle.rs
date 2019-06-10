@@ -1,8 +1,8 @@
 use amethyst::core::timing::Time;
 use amethyst::core::Transform;
-use amethyst::ecs::{Join, Read, ReadExpect, ReadStorage, System, WriteStorage};
+use amethyst::ecs::{Entities, Join, Read, ReadExpect, ReadStorage, System, WriteStorage};
 
-use crate::components::{Particle, Velocity};
+use crate::components::{LifeTime, Particle, Velocity};
 use crate::resources::MagneticField;
 
 pub struct MoveByVelocity;
@@ -42,6 +42,46 @@ impl<'s> System<'s> for MagneticForce {
             let acceleration = force / particle.mass as f32;
 
             velocity.v += acceleration;
+        }
+    }
+}
+
+pub struct LifeTimeCounter;
+
+impl<'s> System<'s> for LifeTimeCounter {
+    type SystemData = (WriteStorage<'s, LifeTime>, Read<'s, Time>);
+
+    fn run(&mut self, (mut lifetimes, time): Self::SystemData) {
+        for lifetime in (&mut lifetimes).join() {
+            lifetime.t += time.delta_seconds();
+        }
+    }
+}
+
+pub struct ParticleSplitter;
+
+impl<'s> System<'s> for ParticleSplitter {
+    type SystemData = (
+        Entities<'s>,
+        ReadStorage<'s, Particle>,
+        ReadStorage<'s, LifeTime>,
+        ReadStorage<'s, Transform>,
+        ReadStorage<'s, Velocity>,
+        Read<'s, Time>,
+    );
+
+    fn run(
+        &mut self,
+        (entities, particles, lifetimes, transforms, velocities, time): Self::SystemData,
+    ) {
+        for (entity, particle, lifetime, transform, velocity) in
+            (&entities, &particles, &lifetimes, &transforms, &velocities).join()
+        {
+            if lifetime.t < 2.0 {
+                continue;
+            }
+
+            entities.delete(entity);
         }
     }
 }

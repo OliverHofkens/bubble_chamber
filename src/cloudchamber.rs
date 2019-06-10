@@ -7,7 +7,7 @@ use amethyst::renderer::{
     Texture, TextureMetadata, Transparent,
 };
 
-use crate::components::{Particle, Velocity};
+use crate::components::{LifeTime, Particle, Velocity};
 use crate::resources::MagneticField;
 
 pub const ARENA_HEIGHT: f32 = 500.0;
@@ -61,6 +61,7 @@ fn initialise_particles(world: &mut World, sprite_sheet: SpriteSheetHandle) {
     world
         .create_entity()
         .with(Particle::new([10, 0, 9]))
+        .with(LifeTime::new())
         .with(transform)
         .with(Velocity {
             v: Vector3::new(50.0, 0.0, 0.0),
