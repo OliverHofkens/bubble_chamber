@@ -4,6 +4,7 @@ use amethyst::renderer::{
     ColorMask, DisplayConfig, DrawFlat2D, Pipeline, RenderBundle, Stage, ALPHA,
 };
 use amethyst::utils::application_root_dir;
+use amethyst::utils::fps_counter::FPSCounterBundle;
 
 mod cloudchamber;
 mod components;
@@ -31,6 +32,8 @@ fn main() -> amethyst::Result<()> {
                 .with_sprite_visibility_sorting(&[]),
         )?
         .with_bundle(TransformBundle::new())?
+        // .with_bundle(FPSCounterBundle::default())?
+        // .with(systems::LogFPS, "log_fps", &[])
         .with(systems::LifeTimeCounter, "lifetime_counter", &[])
         .with(systems::MoveByVelocity, "move_by_velocity", &[])
         .with(systems::MagneticForce, "magnetic_force", &[])

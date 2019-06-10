@@ -24,7 +24,7 @@ impl SimpleState for CloudChamber {
         initialise_camera(world);
 
         world.add_resource(MagneticField {
-            field: Vector3::new(0.0, 0.0, 1.0),
+            field: Vector3::new(0.0, 0.0, 3.0),
         });
     }
 }
@@ -60,11 +60,11 @@ fn initialise_particles(world: &mut World, sprite_sheet: SpriteSheetHandle) {
     // TODO: Neutral particles do not leave tracks
     world
         .create_entity()
-        .with(Particle::new([3, 3, 3]))
+        .with(Particle::new([10, 10, 10]))
         .with(LifeTime::new())
         .with(transform)
         .with(Velocity {
-            v: Vector3::new(50.0, 0.0, 0.0),
+            v: Vector3::new(200.0, 0.0, 0.0),
         })
         .with(sprite_render.clone())
         .with(Transparent)
