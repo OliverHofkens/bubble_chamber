@@ -37,6 +37,7 @@ fn main() -> amethyst::Result<()> {
         .with(systems::LifeTimeCounter, "lifetime_counter", &[])
         .with(systems::MoveByVelocity, "move_by_velocity", &[])
         .with(systems::MagneticForce, "magnetic_force", &[])
+        .with(systems::Exhaustion, "exhaustion", &[])
         .with(systems::ParticleSplitter, "particle_splitter", &[]);
 
     let mut game = Application::new("./", CloudChamber, game_data)?;

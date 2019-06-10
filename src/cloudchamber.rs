@@ -24,7 +24,7 @@ impl SimpleState for CloudChamber {
         initialise_camera(world);
 
         world.add_resource(MagneticField {
-            field: Vector3::new(0.0, 0.0, 3.0),
+            field: Vector3::new(0.0, 0.0, 2.0),
         });
     }
 }

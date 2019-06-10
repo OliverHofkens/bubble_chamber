@@ -45,3 +45,16 @@ impl<'s> System<'s> for MagneticForce {
         }
     }
 }
+
+pub struct Exhaustion;
+
+impl<'s> System<'s> for Exhaustion {
+    type SystemData = (WriteStorage<'s, Velocity>, Read<'s, Time>);
+
+    fn run(&mut self, (mut velocities, time): Self::SystemData) {
+        for (velocity) in (&mut velocities).join() {
+            // Simulate some simple friction
+            velocity.v *= 1.0 - (0.2 * time.delta_seconds());
+        }
+    }
+}
