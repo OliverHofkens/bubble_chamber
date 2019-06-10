@@ -10,8 +10,8 @@ use amethyst::renderer::{
 use crate::components::{LifeTime, Particle, Velocity};
 use crate::resources::MagneticField;
 
-pub const ARENA_HEIGHT: f32 = 1000.0;
-pub const ARENA_WIDTH: f32 = 1000.0;
+pub const ARENA_HEIGHT: f32 = 1080.0;
+pub const ARENA_WIDTH: f32 = 1920.0;
 
 pub struct CloudChamber;
 
@@ -65,7 +65,7 @@ fn initialise_particles(world: &mut World, sprite_sheet: SpriteSheetHandle) {
         .with(LifeTime::new())
         .with(transform)
         .with(Velocity {
-            v: Vector3::new(200.0, 0.0, 0.0),
+            v: Vector3::new(500.0, 0.0, 0.0),
         })
         .with(sprite_render.clone())
         .with(Transparent);

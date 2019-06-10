@@ -1,9 +1,9 @@
 (
   title: "CloudChamber",
-  dimensions: Some((1280, 1080)),
+  dimensions: Some((1920, 1080)),
   max_dimensions: None,
   min_dimensions: None,
-  fullscreen: false,
+  fullscreen: true,
   multisampling: 1,
   visibility: true,
   vsync: true,
