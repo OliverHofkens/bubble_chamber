@@ -1,10 +1,7 @@
-use std::cmp;
-
 use amethyst::core::Transform;
 use amethyst::ecs::{Entities, Join, System, WriteStorage};
-use amethyst::renderer::{SpriteRender, Transparent};
+use amethyst::renderer::{Hidden, SpriteRender, Transparent};
 use log::info;
-use rand::distributions::{Distribution, Poisson};
 use rand::Rng;
 
 use crate::components::{LifeTime, Particle, Velocity};
@@ -20,6 +17,7 @@ impl<'s> System<'s> for ParticleSplitter {
         WriteStorage<'s, Velocity>,
         WriteStorage<'s, SpriteRender>,
         WriteStorage<'s, Transparent>,
+        WriteStorage<'s, Hidden>,
     );
 
     fn run(
@@ -32,6 +30,7 @@ impl<'s> System<'s> for ParticleSplitter {
             mut velocities,
             mut sprites,
             mut transparents,
+            mut hidden,
         ): Self::SystemData,
     ) {
         let mut new_particles = Vec::new();
@@ -57,15 +56,22 @@ impl<'s> System<'s> for ParticleSplitter {
         }
 
         for (particle, transform, velocity, sprite) in new_particles {
-            entities
+            let total_charge = particle.total_charge;
+            let mut entity = entities
                 .build_entity()
                 .with(particle, &mut particles)
                 .with(LifeTime::new(), &mut lifetimes)
                 .with(transform, &mut transforms)
                 .with(velocity, &mut velocities)
                 .with(sprite.clone(), &mut sprites)
-                .with(Transparent, &mut transparents)
-                .build();
+                .with(Transparent, &mut transparents);
+
+            // Particles without charge don't show
+            if total_charge == 0 {
+                entity = entity.with(Hidden, &mut hidden);
+            }
+
+            entity.build();
         }
     }
 }
