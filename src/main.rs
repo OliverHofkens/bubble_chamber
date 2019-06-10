@@ -1,5 +1,3 @@
-extern crate amethyst;
-
 use amethyst::core::transform::TransformBundle;
 use amethyst::prelude::*;
 use amethyst::renderer::{
@@ -22,7 +20,7 @@ fn main() -> amethyst::Result<()> {
 
     let pipe = Pipeline::build().with_stage(
         Stage::with_backbuffer()
-            .clear_target([0.0, 0.0, 0.0, 1.0], 1.0)
+            // .clear_target([0.0, 0.0, 0.0, 1.0], 1.0)
             .with_pass(DrawFlat2D::new().with_transparency(ColorMask::all(), ALPHA, None)),
     );
 

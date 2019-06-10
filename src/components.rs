@@ -1,6 +1,7 @@
 use amethyst::core::nalgebra::Vector3;
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
+#[derive(Clone)]
 pub struct Velocity {
     pub v: Vector3<f32>,
 }
@@ -9,6 +10,7 @@ impl Component for Velocity {
     type Storage = DenseVecStorage<Self>;
 }
 
+#[derive(Debug)]
 pub struct Particle {
     pub charges: [usize; 3],
     pub total_charge: isize,

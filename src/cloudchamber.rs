@@ -10,8 +10,8 @@ use amethyst::renderer::{
 use crate::components::{LifeTime, Particle, Velocity};
 use crate::resources::MagneticField;
 
-pub const ARENA_HEIGHT: f32 = 500.0;
-pub const ARENA_WIDTH: f32 = 500.0;
+pub const ARENA_HEIGHT: f32 = 1000.0;
+pub const ARENA_WIDTH: f32 = 1000.0;
 
 pub struct CloudChamber;
 
@@ -24,7 +24,7 @@ impl SimpleState for CloudChamber {
         initialise_camera(world);
 
         world.add_resource(MagneticField {
-            field: Vector3::new(0.0, 0.0, 5.0),
+            field: Vector3::new(0.0, 0.0, 1.0),
         });
     }
 }
@@ -48,9 +48,8 @@ fn initialise_particles(world: &mut World, sprite_sheet: SpriteSheetHandle) {
     let mut transform = Transform::default();
 
     // Correctly position the particles
-    let x = ARENA_WIDTH / 2.0;
     let y = ARENA_HEIGHT / 2.0;
-    transform.set_xyz(x, y, 0.0);
+    transform.set_xyz(0.0, y, 0.0);
 
     // Assign the sprite for the particles
     let sprite_render = SpriteRender {
@@ -60,11 +59,11 @@ fn initialise_particles(world: &mut World, sprite_sheet: SpriteSheetHandle) {
 
     world
         .create_entity()
-        .with(Particle::new([10, 0, 9]))
+        .with(Particle::new([3, 3, 3]))
         .with(LifeTime::new())
         .with(transform)
         .with(Velocity {
-            v: Vector3::new(50.0, 0.0, 0.0),
+            v: Vector3::new(20.0, 0.0, 0.0),
         })
         .with(sprite_render.clone())
         .with(Transparent)
