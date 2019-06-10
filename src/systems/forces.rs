@@ -41,7 +41,7 @@ impl<'s> System<'s> for MagneticForce {
             // (F = m.a), so (a = F/m)
             let acceleration = force / particle.mass as f32;
 
-            velocity.v += acceleration;
+            velocity.v += acceleration * time.delta_seconds();
         }
     }
 }

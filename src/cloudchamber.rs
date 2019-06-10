@@ -57,13 +57,14 @@ fn initialise_particles(world: &mut World, sprite_sheet: SpriteSheetHandle) {
         sprite_number: 0, // particle is the first and only sprite in the sprite_sheet
     };
 
+    // TODO: Neutral particles do not leave tracks
     world
         .create_entity()
         .with(Particle::new([3, 3, 3]))
         .with(LifeTime::new())
         .with(transform)
         .with(Velocity {
-            v: Vector3::new(20.0, 0.0, 0.0),
+            v: Vector3::new(50.0, 0.0, 0.0),
         })
         .with(sprite_render.clone())
         .with(Transparent)

@@ -80,31 +80,37 @@ impl ParticleSplitter {
     ) -> Vec<(Particle, Transform, Velocity, SpriteRender)> {
         let mut random = rand::thread_rng();
 
-        let mut n_new_parts = Poisson::new(2.0).sample(&mut random) as u8;
-        n_new_parts = cmp::max(n_new_parts, 2);
-        n_new_parts = cmp::min(n_new_parts, particle.mass as u8);
-        info!("Splitting particle {:?} in {}", particle, n_new_parts);
+        // let mut n_new_parts = Poisson::new(2.0).sample(&mut random) as u8;
+        // n_new_parts = cmp::max(n_new_parts, 2);
+        // n_new_parts = cmp::min(n_new_parts, particle.mass as u8);
+        // info!("Splitting particle {:?} in {}", particle, n_new_parts);
 
         let mut charges_left = particle.charges;
 
         let mut results = Vec::new();
 
-        for _ in 1..n_new_parts {
+        while charges_left[0] > 0 || charges_left[1] > 0 || charges_left[2] > 0 {
             let pos = if charges_left[0] > 0 {
-                random.gen_range(0, charges_left[0])
+                random.gen_range(0, charges_left[0] + 1)
             } else {
                 0
             };
             let neutral = if charges_left[1] > 0 {
-                random.gen_range(0, charges_left[1])
+                random.gen_range(0, charges_left[1] + 1)
             } else {
                 0
             };
             let neg = if charges_left[2] > 0 {
-                random.gen_range(0, charges_left[2])
+                random.gen_range(0, charges_left[2] + 1)
             } else {
                 0
             };
+
+            // Disregard zero-mass particles
+            if pos == 0 && neutral == 0 && neg == 0 {
+                continue;
+            }
+
             info!("New particle with charge {},{},{}", pos, neutral, neg);
 
             charges_left[0] -= pos;
@@ -118,18 +124,6 @@ impl ParticleSplitter {
                 sprite.clone(),
             ));
         }
-
-        // Remaining charges go to final particle
-        results.push((
-            Particle::new(charges_left),
-            transform.clone(),
-            velocity.clone(),
-            sprite.clone(),
-        ));
-        info!(
-            "New particle with charge {},{},{}",
-            charges_left[0], charges_left[1], charges_left[2]
-        );
 
         results
     }
