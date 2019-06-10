@@ -3,8 +3,8 @@ use amethyst::core::nalgebra::Vector3;
 use amethyst::core::transform::Transform;
 use amethyst::prelude::*;
 use amethyst::renderer::{
-    Camera, PngFormat, Projection, SpriteRender, SpriteSheet, SpriteSheetFormat, SpriteSheetHandle,
-    Texture, TextureMetadata, Transparent,
+    Camera, Hidden, PngFormat, Projection, SpriteRender, SpriteSheet, SpriteSheetFormat,
+    SpriteSheetHandle, Texture, TextureMetadata, Transparent,
 };
 
 use crate::components::{LifeTime, Particle, Velocity};
@@ -57,18 +57,25 @@ fn initialise_particles(world: &mut World, sprite_sheet: SpriteSheetHandle) {
         sprite_number: 0, // particle is the first and only sprite in the sprite_sheet
     };
 
-    // TODO: Neutral particles do not leave tracks
-    world
+    let particle = Particle::new([10, 10, 10]);
+    let total_charge = particle.total_charge;
+    let mut entity = world
         .create_entity()
-        .with(Particle::new([10, 10, 10]))
+        .with(particle)
         .with(LifeTime::new())
         .with(transform)
         .with(Velocity {
             v: Vector3::new(200.0, 0.0, 0.0),
         })
         .with(sprite_render.clone())
-        .with(Transparent)
-        .build();
+        .with(Transparent);
+
+    // Neutral particles do not leave tracks
+    if total_charge == 0 {
+        entity = entity.with(Hidden);
+    }
+
+    entity.build();
 }
 
 fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
