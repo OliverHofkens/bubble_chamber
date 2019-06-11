@@ -4,7 +4,7 @@ use amethyst::renderer::{
     ColorMask, DisplayConfig, DrawFlat2D, Pipeline, RenderBundle, Stage, ALPHA,
 };
 use amethyst::utils::application_root_dir;
-use amethyst::utils::fps_counter::FPSCounterBundle;
+// use amethyst::utils::fps_counter::FPSCounterBundle;
 
 mod cloudchamber;
 mod components;

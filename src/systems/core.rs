@@ -21,7 +21,7 @@ pub struct LogFPS;
 impl<'s> System<'s> for LogFPS {
     type SystemData = (Read<'s, FPSCounter>);
 
-    fn run(&mut self, (fps_counter): Self::SystemData) {
+    fn run(&mut self, fps_counter: Self::SystemData) {
         info!("AVG FPS: {}", fps_counter.sampled_fps());
     }
 }
