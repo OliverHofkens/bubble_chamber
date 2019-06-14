@@ -50,3 +50,19 @@ impl LifeTime {
         LifeTime { t: 0.0 }
     }
 }
+
+pub struct Trace {
+    pub points: Vec<[f32; 2]>,
+}
+
+impl Component for Trace {
+    type Storage = DenseVecStorage<Self>;
+}
+
+impl Trace {
+    pub fn new(start_x: f32, start_y: f32) -> Trace {
+        Trace {
+            points: vec![[start_x, start_y]],
+        }
+    }
+}

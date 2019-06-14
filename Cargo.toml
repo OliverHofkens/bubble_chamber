@@ -9,3 +9,4 @@ amethyst = "0.10.0"
 serde = { version = "1.0", features = ["derive"] }
 rand = "0.6"
 log = "0.4"
+svg = "0.5"

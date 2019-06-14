@@ -1,10 +1,11 @@
 use amethyst::core::Transform;
-use amethyst::ecs::{Entities, Join, System, WriteStorage};
+use amethyst::ecs::{Entities, Join, System, Write, WriteStorage};
 use amethyst::renderer::{Hidden, SpriteRender, Transparent};
 use log::info;
 use rand::Rng;
 
-use crate::components::{LifeTime, Particle, Velocity};
+use crate::components::{LifeTime, Particle, Trace, Velocity};
+use crate::resources::SVGBuilder;
 
 pub struct ParticleSplitter;
 
@@ -18,6 +19,8 @@ impl<'s> System<'s> for ParticleSplitter {
         WriteStorage<'s, SpriteRender>,
         WriteStorage<'s, Transparent>,
         WriteStorage<'s, Hidden>,
+        WriteStorage<'s, Trace>,
+        Write<'s, SVGBuilder>,
     );
 
     fn run(
@@ -31,17 +34,20 @@ impl<'s> System<'s> for ParticleSplitter {
             mut sprites,
             mut transparents,
             mut hidden,
+            mut traces,
+            mut svgbuilder,
         ): Self::SystemData,
     ) {
         let mut new_particles = Vec::new();
 
-        for (entity, particle, lifetime, transform, velocity, sprite) in (
+        for (entity, particle, lifetime, transform, velocity, sprite, trace) in (
             &entities,
             &particles,
             &lifetimes,
             &transforms,
             &velocities,
             &sprites,
+            &traces,
         )
             .join()
         {
@@ -52,22 +58,28 @@ impl<'s> System<'s> for ParticleSplitter {
 
             new_particles
                 .append(&mut self.split_particle(&particle, &transform, &velocity, &sprite));
+
+            // TODO: refactor this common logic:
+            svgbuilder.paths.push(trace.points.clone());
             entities.delete(entity).expect("Failed to delete particle.");
         }
 
         for (particle, transform, velocity, sprite) in new_particles {
             let total_charge = particle.total_charge;
+            let location = transform.translation();
+
             let mut entity = entities
                 .build_entity()
                 .with(particle, &mut particles)
                 .with(LifeTime::new(), &mut lifetimes)
+                .with(Trace::new(location[0], location[1]), &mut traces)
                 .with(transform, &mut transforms)
                 .with(velocity, &mut velocities)
                 .with(sprite.clone(), &mut sprites)
                 .with(Transparent, &mut transparents);
 
-            // Particles without charge don't show
             if total_charge == 0 {
+                // Particles without charge don't show
                 entity = entity.with(Hidden, &mut hidden);
             }
 

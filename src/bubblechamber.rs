@@ -1,15 +1,20 @@
 use amethyst::assets::{AssetStorage, Loader};
 use amethyst::core::nalgebra::Vector3;
 use amethyst::core::transform::Transform;
+use amethyst::input::is_key_down;
 use amethyst::prelude::*;
+use amethyst::renderer::VirtualKeyCode;
 use amethyst::renderer::{
     Camera, Hidden, PngFormat, Projection, SpriteRender, SpriteSheet, SpriteSheetFormat,
     SpriteSheetHandle, Texture, TextureMetadata, Transparent,
 };
+use svg::node::element::path::Data;
+use svg::node::element::{Path, Rectangle};
+use svg::Document;
 
-use crate::components::{LifeTime, Particle, Velocity};
+use crate::components::{LifeTime, Particle, Trace, Velocity};
 use crate::config::{ChamberConfig, MagneticFieldConfig, MultiParticlesConfig};
-use crate::resources::MagneticField;
+use crate::resources::{MagneticField, SVGBuilder};
 
 pub struct BubbleChamber;
 
@@ -21,6 +26,28 @@ impl SimpleState for BubbleChamber {
         initialise_particles(world, sprite_sheet_handle);
         initialise_magnetic_field(world);
         initialise_camera(world);
+        initialise_svg(world);
+    }
+
+    fn on_stop(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        // On stop, we construct the SVG:
+        output_svg(data.world);
+    }
+
+    fn handle_event(
+        &mut self,
+        _data: StateData<'_, GameData<'_, '_>>,
+        event: StateEvent,
+    ) -> SimpleTrans {
+        if let StateEvent::Window(event) = &event {
+            if is_key_down(&event, VirtualKeyCode::Escape) {
+                // Pause the game by going to the `PausedState`.
+                return Trans::Pop;
+            }
+        }
+
+        // Escape isn't pressed, so we stay in this `State`.
+        Trans::None
     }
 }
 
@@ -76,10 +103,11 @@ fn initialise_particles(world: &mut World, sprite_sheet: SpriteSheetHandle) {
             .with(transform)
             .with(velocity)
             .with(sprite_render.clone())
+            .with(Trace::new(location[0], location[1]))
             .with(Transparent);
 
-        // Neutral particles do not leave tracks
         if total_charge == 0 {
+            // Neutral particles do not leave tracks
             entity = entity.with(Hidden);
         }
 
@@ -94,6 +122,10 @@ fn initialise_magnetic_field(world: &mut World) {
     };
 
     world.add_resource(MagneticField { field: field });
+}
+
+fn initialise_svg(world: &mut World) {
+    world.add_resource(SVGBuilder { paths: Vec::new() });
 }
 
 fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
@@ -121,4 +153,38 @@ fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
         (),
         &sprite_sheet_store,
     )
+}
+
+pub fn output_svg(world: &mut World) {
+    let svg_builder = world.read_resource::<SVGBuilder>();
+
+    // TODO: Make configurable
+    let mut document = Document::new().set("viewBox", (0, 0, 1920, 1080));
+
+    // Add 100% rect in black as background
+    document = document.add(
+        Rectangle::new()
+            .set("width", "100%")
+            .set("height", "100%")
+            .set("fill", "black"),
+    );
+
+    for path in &svg_builder.paths {
+        // Starting point
+        let mut data = Data::new().move_to((path[0][0], path[0][1]));
+
+        // Make the curve
+        let all_points: Vec<f32> = path[1..].iter().flatten().cloned().collect();
+        data = data.cubic_curve_to(all_points);
+
+        let path = Path::new()
+            .set("fill", "none")
+            .set("stroke", "white")
+            .set("stroke-width", 3)
+            .set("d", data.to_owned());
+
+        document = document.add(path);
+    }
+
+    svg::save("particles.svg", &document).unwrap();
 }

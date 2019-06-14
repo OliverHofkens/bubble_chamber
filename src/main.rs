@@ -44,6 +44,7 @@ fn main() -> amethyst::Result<()> {
         .with(systems::MagneticForce, "magnetic_force", &[])
         .with(systems::Exhaustion, "exhaustion", &[])
         .with(systems::ParticleSplitter, "particle_splitter", &[])
+        .with(systems::TraceBuilder, "svg_path_builder", &[])
         .with(systems::Cleanup, "cleanup", &[]);
 
     let mut game = Application::build("./", BubbleChamber)
