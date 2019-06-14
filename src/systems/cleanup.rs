@@ -17,7 +17,7 @@ impl<'s> System<'s> for Cleanup {
             }
 
             if particle.total_charge == 0 || lifetime.t > 2.0 {
-                entities.delete(entity);
+                entities.delete(entity).expect("Failed to delete particle.");
             }
         }
     }

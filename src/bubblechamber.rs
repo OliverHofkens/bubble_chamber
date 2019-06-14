@@ -8,10 +8,8 @@ use amethyst::renderer::{
 };
 
 use crate::components::{LifeTime, Particle, Velocity};
+use crate::config::{ChamberConfig, MagneticFieldConfig, MultiParticlesConfig};
 use crate::resources::MagneticField;
-
-pub const ARENA_HEIGHT: f32 = 1080.0;
-pub const ARENA_WIDTH: f32 = 1920.0;
 
 pub struct BubbleChamber;
 
@@ -21,61 +19,81 @@ impl SimpleState for BubbleChamber {
         let sprite_sheet_handle = load_sprite_sheet(world);
 
         initialise_particles(world, sprite_sheet_handle);
+        initialise_magnetic_field(world);
         initialise_camera(world);
-
-        world.add_resource(MagneticField {
-            field: Vector3::new(0.0, 0.0, 2.0),
-        });
     }
 }
 
 fn initialise_camera(world: &mut World) {
     let mut transform = Transform::default();
     transform.set_z(1.0);
+
+    let (chamber_width, chamber_height) = {
+        let config = &world.read_resource::<ChamberConfig>();
+        (config.width, config.height)
+    };
+
     world
         .create_entity()
         .with(Camera::from(Projection::orthographic(
             0.0,
-            ARENA_WIDTH,
+            chamber_width,
             0.0,
-            ARENA_HEIGHT,
+            chamber_height,
         )))
         .with(transform)
         .build();
 }
 
 fn initialise_particles(world: &mut World, sprite_sheet: SpriteSheetHandle) {
-    let mut transform = Transform::default();
+    let particle_configs: Vec<([usize; 3], Vector3<f32>, Vector3<f32>)> = {
+        let config = &world.read_resource::<MultiParticlesConfig>();
 
-    // Correctly position the particles
-    let y = ARENA_HEIGHT / 2.0;
-    transform.set_xyz(0.0, y, 0.0);
-
-    // Assign the sprite for the particles
-    let sprite_render = SpriteRender {
-        sprite_sheet: sprite_sheet.clone(),
-        sprite_number: 0, // particle is the first and only sprite in the sprite_sheet
+        config
+            .at_start
+            .iter()
+            .map(|conf| (conf.charges, conf.location, conf.velocity))
+            .collect()
     };
 
-    let particle = Particle::new([10, 10, 10]);
-    let total_charge = particle.total_charge;
-    let mut entity = world
-        .create_entity()
-        .with(particle)
-        .with(LifeTime::new())
-        .with(transform)
-        .with(Velocity {
-            v: Vector3::new(500.0, 0.0, 0.0),
-        })
-        .with(sprite_render.clone())
-        .with(Transparent);
+    for (charges, location, velocity) in particle_configs {
+        let particle = Particle::new(charges);
+        let mut transform = Transform::default();
+        transform.set_xyz(location[0], location[1], location[2]);
+        let velocity = Velocity { v: velocity };
 
-    // Neutral particles do not leave tracks
-    if total_charge == 0 {
-        entity = entity.with(Hidden);
+        // Assign the sprite for the particles
+        let sprite_render = SpriteRender {
+            sprite_sheet: sprite_sheet.clone(),
+            sprite_number: 0, // particle is the first and only sprite in the sprite_sheet
+        };
+        let total_charge = particle.total_charge;
+
+        let mut entity = world
+            .create_entity()
+            .with(particle)
+            .with(LifeTime::new())
+            .with(transform)
+            .with(velocity)
+            .with(sprite_render.clone())
+            .with(Transparent);
+
+        // Neutral particles do not leave tracks
+        if total_charge == 0 {
+            entity = entity.with(Hidden);
+        }
+
+        entity.build();
     }
+}
 
-    entity.build();
+fn initialise_magnetic_field(world: &mut World) {
+    let field = {
+        let config = &world.read_resource::<MagneticFieldConfig>();
+        config.field
+    };
+
+    world.add_resource(MagneticField { field: field });
 }
 
 fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {

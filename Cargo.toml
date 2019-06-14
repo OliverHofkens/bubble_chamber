@@ -1,10 +1,11 @@
 [package]
-name = "cloud_chamber"
+name = "bubble_chamber"
 version = "0.1.0"
-authors = []
+authors = ["Oliver Hofkens <oli.hofkens@gmail.com>"]
 edition = "2018"
 
 [dependencies]
 amethyst = "0.10.0"
+serde = { version = "1.0", features = ["derive"] }
 rand = "0.6"
 log = "0.4"

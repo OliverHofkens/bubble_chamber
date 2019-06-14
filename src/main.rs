@@ -39,7 +39,6 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(TransformBundle::new())?
         // .with_bundle(FPSCounterBundle::default())?
         // .with(systems::LogFPS, "log_fps", &[])
-        .with_resource(simulation_config.chamber)
         .with(systems::LifeTimeCounter, "lifetime_counter", &[])
         .with(systems::MoveByVelocity, "move_by_velocity", &[])
         .with(systems::MagneticForce, "magnetic_force", &[])
@@ -47,7 +46,13 @@ fn main() -> amethyst::Result<()> {
         .with(systems::ParticleSplitter, "particle_splitter", &[])
         .with(systems::Cleanup, "cleanup", &[]);
 
-    let mut game = Application::new("./", BubbleChamber, game_data)?;
+    let mut game = Application::build("./", BubbleChamber)
+        .expect("Failed to initialize")
+        .with_resource(simulation_config.chamber)
+        .with_resource(simulation_config.magnetic_field)
+        .with_resource(simulation_config.particles)
+        .build(game_data)
+        .expect("Failed to build game");
 
     game.run();
 

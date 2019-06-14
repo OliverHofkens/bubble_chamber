@@ -52,7 +52,7 @@ impl<'s> System<'s> for ParticleSplitter {
 
             new_particles
                 .append(&mut self.split_particle(&particle, &transform, &velocity, &sprite));
-            entities.delete(entity);
+            entities.delete(entity).expect("Failed to delete particle.");
         }
 
         for (particle, transform, velocity, sprite) in new_particles {
