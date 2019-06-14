@@ -6,18 +6,23 @@ use amethyst::renderer::{
 use amethyst::utils::application_root_dir;
 // use amethyst::utils::fps_counter::FPSCounterBundle;
 
-mod cloudchamber;
+mod bubblechamber;
 mod components;
+mod config;
 mod resources;
 mod systems;
 
-use crate::cloudchamber::CloudChamber;
+use crate::bubblechamber::BubbleChamber;
+use crate::config::SimulationConfig;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
 
     let path = format!("{}/resources/display_config.ron", application_root_dir());
     let config = DisplayConfig::load(&path);
+
+    let path = format!("{}/resources/sim_config.ron", application_root_dir());
+    let simulation_config = SimulationConfig::load(&path);
 
     let pipe = Pipeline::build().with_stage(
         Stage::with_backbuffer()
@@ -34,6 +39,7 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(TransformBundle::new())?
         // .with_bundle(FPSCounterBundle::default())?
         // .with(systems::LogFPS, "log_fps", &[])
+        .with_resource(simulation_config.chamber)
         .with(systems::LifeTimeCounter, "lifetime_counter", &[])
         .with(systems::MoveByVelocity, "move_by_velocity", &[])
         .with(systems::MagneticForce, "magnetic_force", &[])
@@ -41,7 +47,7 @@ fn main() -> amethyst::Result<()> {
         .with(systems::ParticleSplitter, "particle_splitter", &[])
         .with(systems::Cleanup, "cleanup", &[]);
 
-    let mut game = Application::new("./", CloudChamber, game_data)?;
+    let mut game = Application::new("./", BubbleChamber, game_data)?;
 
     game.run();
 

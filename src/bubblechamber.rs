@@ -13,9 +13,9 @@ use crate::resources::MagneticField;
 pub const ARENA_HEIGHT: f32 = 1080.0;
 pub const ARENA_WIDTH: f32 = 1920.0;
 
-pub struct CloudChamber;
+pub struct BubbleChamber;
 
-impl SimpleState for CloudChamber {
+impl SimpleState for BubbleChamber {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
         let sprite_sheet_handle = load_sprite_sheet(world);
