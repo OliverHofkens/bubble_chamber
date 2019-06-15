@@ -39,6 +39,7 @@ impl Component for Particle {
 
 pub struct LifeTime {
     pub t: f32,
+    pub decays_after: f32,
 }
 
 impl Component for LifeTime {
@@ -46,8 +47,11 @@ impl Component for LifeTime {
 }
 
 impl LifeTime {
-    pub fn new() -> LifeTime {
-        LifeTime { t: 0.0 }
+    pub fn new(decays_after: f32) -> LifeTime {
+        LifeTime {
+            t: 0.0,
+            decays_after: decays_after,
+        }
     }
 }
 

@@ -52,6 +52,14 @@ impl<'s> System<'s> for Exhaustion {
     type SystemData = (WriteStorage<'s, Velocity>, Read<'s, Time>);
 
     fn run(&mut self, (mut velocities, time): Self::SystemData) {
+        // It is known that a charged particle’s range d,
+        // which is the distance it travelled beforecoming to rest,
+        // is approximately proportional to the fourth power of its initial momentum,
+        // (i.e.,d∝p4)
+
+        // Normal drag is proportional to velocity or velocity squared,
+        // So it seems velocity is always involved...
+
         for velocity in (&mut velocities).join() {
             // Simulate some simple friction
             velocity.v *= 1.0 - (0.3 * time.delta_seconds());

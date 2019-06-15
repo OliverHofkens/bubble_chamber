@@ -2,3 +2,4 @@ target/
 .envrc
 *.svg
 *.png
+.DS_Store

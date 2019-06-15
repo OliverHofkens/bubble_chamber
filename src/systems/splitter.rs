@@ -1,10 +1,13 @@
 use amethyst::core::Transform;
-use amethyst::ecs::{Entities, Join, System, Write, WriteStorage};
+use amethyst::ecs::{Entities, Join, Read, System, Write, WriteStorage};
 use amethyst::renderer::{Hidden, SpriteRender, Transparent};
 use log::info;
+use rand::distributions::{Distribution, Exp};
+use rand::thread_rng;
 use rand::Rng;
 
 use crate::components::{LifeTime, Particle, Trace, Velocity};
+use crate::config::MultiParticlesConfig;
 use crate::resources::SVGBuilder;
 
 pub struct ParticleSplitter;
@@ -21,6 +24,7 @@ impl<'s> System<'s> for ParticleSplitter {
         WriteStorage<'s, Hidden>,
         WriteStorage<'s, Trace>,
         Write<'s, SVGBuilder>,
+        Read<'s, MultiParticlesConfig>,
     );
 
     fn run(
@@ -36,6 +40,7 @@ impl<'s> System<'s> for ParticleSplitter {
             mut hidden,
             mut traces,
             mut svgbuilder,
+            particles_config,
         ): Self::SystemData,
     ) {
         let mut new_particles = Vec::new();
@@ -51,8 +56,7 @@ impl<'s> System<'s> for ParticleSplitter {
         )
             .join()
         {
-            // TODO: Sample from exponential decay distribution?
-            if lifetime.t < 1.0 || particle.mass == 1 {
+            if lifetime.t < lifetime.decays_after || particle.mass == 1 {
                 continue;
             }
 
@@ -64,6 +68,11 @@ impl<'s> System<'s> for ParticleSplitter {
             entities.delete(entity).expect("Failed to delete particle.");
         }
 
+        let decay_rate = particles_config.decay_rate;
+
+        let mut rng = thread_rng();
+        let decay_distribution = Exp::new(decay_rate as f64);
+
         for (particle, transform, velocity, sprite) in new_particles {
             let total_charge = particle.total_charge;
             let location = transform.translation();
@@ -71,7 +80,10 @@ impl<'s> System<'s> for ParticleSplitter {
             let mut entity = entities
                 .build_entity()
                 .with(particle, &mut particles)
-                .with(LifeTime::new(), &mut lifetimes)
+                .with(
+                    LifeTime::new(decay_distribution.sample(&mut rng) as f32),
+                    &mut lifetimes,
+                )
                 .with(Trace::new(location[0], location[1]), &mut traces)
                 .with(transform, &mut transforms)
                 .with(velocity, &mut velocities)

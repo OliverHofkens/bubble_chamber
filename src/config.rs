@@ -38,6 +38,7 @@ impl Default for MagneticFieldConfig {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct MultiParticlesConfig {
+    pub decay_rate: f32,
     pub at_start: Vec<ParticleConfig>,
 }
 
@@ -45,6 +46,7 @@ impl Default for MultiParticlesConfig {
     fn default() -> Self {
         let particle = ParticleConfig::default();
         MultiParticlesConfig {
+            decay_rate: 0.5,
             at_start: vec![particle],
         }
     }

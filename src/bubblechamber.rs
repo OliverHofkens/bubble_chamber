@@ -8,6 +8,8 @@ use amethyst::renderer::{
     Camera, Hidden, PngFormat, Projection, SpriteRender, SpriteSheet, SpriteSheetFormat,
     SpriteSheetHandle, Texture, TextureMetadata, Transparent,
 };
+use rand::distributions::{Distribution, Exp};
+use rand::thread_rng;
 use svg::node::element::path::Data;
 use svg::node::element::{Path, Rectangle};
 use svg::Document;
@@ -73,15 +75,20 @@ fn initialise_camera(world: &mut World) {
 }
 
 fn initialise_particles(world: &mut World, sprite_sheet: SpriteSheetHandle) {
-    let particle_configs: Vec<([usize; 3], Vector3<f32>, Vector3<f32>)> = {
+    let (decay_rate, particle_configs): (f32, Vec<([usize; 3], Vector3<f32>, Vector3<f32>)>) = {
         let config = &world.read_resource::<MultiParticlesConfig>();
 
-        config
-            .at_start
-            .iter()
-            .map(|conf| (conf.charges, conf.location, conf.velocity))
-            .collect()
+        (
+            config.decay_rate,
+            config
+                .at_start
+                .iter()
+                .map(|conf| (conf.charges, conf.location, conf.velocity))
+                .collect(),
+        )
     };
+    let mut rng = thread_rng();
+    let decay_distribution = Exp::new(decay_rate as f64);
 
     for (charges, location, velocity) in particle_configs {
         let particle = Particle::new(charges);
@@ -99,7 +106,7 @@ fn initialise_particles(world: &mut World, sprite_sheet: SpriteSheetHandle) {
         let mut entity = world
             .create_entity()
             .with(particle)
-            .with(LifeTime::new())
+            .with(LifeTime::new(decay_distribution.sample(&mut rng) as f32))
             .with(transform)
             .with(velocity)
             .with(sprite_render.clone())

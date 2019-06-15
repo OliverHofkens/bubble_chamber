@@ -4,12 +4,13 @@
         height: 2160.0,
     ),
     magnetic_field: (
-        field: [0.0, 0.0, 3.0],
+        field: [0.0, 0.0, 2.0],
     ),
     particles: (
+        decay_rate: 0.5,
         at_start: [
             (
-                charges: (20, 10, 20),
+                charges: (50, 75, 50),
                 location: [0.0, 1080.0, 0.0],
                 velocity: [1000.0, 0.0, 0.0],
             ),
