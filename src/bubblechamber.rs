@@ -158,8 +158,11 @@ fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
 pub fn output_svg(world: &mut World) {
     let svg_builder = world.read_resource::<SVGBuilder>();
 
-    // TODO: Make configurable
-    let mut document = Document::new().set("viewBox", (0, 0, 1920, 1080));
+    let (viewbox_width, viewbox_height) = {
+        let config = world.read_resource::<ChamberConfig>();
+        (config.width, config.height)
+    };
+    let mut document = Document::new().set("viewBox", (0, 0, viewbox_width, viewbox_height));
 
     // Add 100% rect in black as background
     document = document.add(
