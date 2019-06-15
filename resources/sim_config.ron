@@ -7,7 +7,7 @@
         field: [0.0, 0.0, 2.0],
     ),
     particles: (
-        decay_rate: 0.5,
+        decay_rate: 0.75,
         at_start: [
             (
                 charges: (50, 75, 50),
