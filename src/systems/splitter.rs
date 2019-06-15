@@ -52,7 +52,7 @@ impl<'s> System<'s> for ParticleSplitter {
             .join()
         {
             // TODO: Sample from exponential decay distribution?
-            if lifetime.t < 2.0 || particle.mass == 1 {
+            if lifetime.t < 1.0 || particle.mass == 1 {
                 continue;
             }
 
