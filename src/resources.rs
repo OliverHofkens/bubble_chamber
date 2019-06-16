@@ -1,4 +1,4 @@
-use amethyst::core::nalgebra::Vector3;
+use amethyst::core::math::Vector3;
 
 /// The global magnetic field
 pub struct MagneticField {

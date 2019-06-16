@@ -1,4 +1,4 @@
-use amethyst::core::nalgebra::Vector3;
+use amethyst::core::math::Vector3;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize, Default)]

@@ -5,7 +5,7 @@ authors = ["Oliver Hofkens <oli.hofkens@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-amethyst = "0.10.0"
+amethyst = { version = "0.11", features = ["metal"] }
 serde = { version = "1.0", features = ["derive"] }
 rand = "0.6"
 log = "0.4"

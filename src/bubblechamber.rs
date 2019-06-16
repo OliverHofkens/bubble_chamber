@@ -1,13 +1,17 @@
-use amethyst::assets::{AssetStorage, Loader};
-use amethyst::core::nalgebra::Vector3;
-use amethyst::core::transform::Transform;
+use amethyst::core::math::Vector3;
 use amethyst::input::is_key_down;
+use amethyst::input::VirtualKeyCode;
 use amethyst::prelude::*;
-use amethyst::renderer::VirtualKeyCode;
-use amethyst::renderer::{
-    Camera, Hidden, PngFormat, Projection, SpriteRender, SpriteSheet, SpriteSheetFormat,
-    SpriteSheetHandle, Texture, TextureMetadata, Transparent,
+
+use amethyst::{
+    assets::{AssetStorage, Handle, Loader},
+    core::{Hidden, Transform},
+    renderer::{
+        transparent::Transparent, Camera, ImageFormat, SpriteRender, SpriteSheet,
+        SpriteSheetFormat, Texture,
+    },
 };
+
 use rand::distributions::{Distribution, Exp};
 use rand::thread_rng;
 use svg::node::element::path::Data;
@@ -54,27 +58,22 @@ impl SimpleState for BubbleChamber {
 }
 
 fn initialise_camera(world: &mut World) {
-    let mut transform = Transform::default();
-    transform.set_z(1.0);
-
     let (chamber_width, chamber_height) = {
         let config = &world.read_resource::<ChamberConfig>();
         (config.width, config.height)
     };
 
+    let mut transform = Transform::default();
+    transform.set_translation_xyz(chamber_width * 0.5, chamber_height * 0.5, 1.0);
+
     world
         .create_entity()
-        .with(Camera::from(Projection::orthographic(
-            0.0,
-            chamber_width,
-            0.0,
-            chamber_height,
-        )))
+        .with(Camera::standard_2d(chamber_width, chamber_height))
         .with(transform)
         .build();
 }
 
-fn initialise_particles(world: &mut World, sprite_sheet: SpriteSheetHandle) {
+fn initialise_particles(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
     let (decay_rate, particle_configs): (f32, Vec<([usize; 3], Vector3<f32>, Vector3<f32>)>) = {
         let config = &world.read_resource::<MultiParticlesConfig>();
 
@@ -93,7 +92,7 @@ fn initialise_particles(world: &mut World, sprite_sheet: SpriteSheetHandle) {
     for (charges, location, velocity) in particle_configs {
         let particle = Particle::new(charges);
         let mut transform = Transform::default();
-        transform.set_xyz(location[0], location[1], location[2]);
+        transform.set_translation_xyz(location[0], location[1], location[2]);
         let velocity = Velocity { v: velocity };
 
         // Assign the sprite for the particles
@@ -135,7 +134,7 @@ fn initialise_svg(world: &mut World) {
     world.add_resource(SVGBuilder { paths: Vec::new() });
 }
 
-fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
+fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
     // Load the sprite sheet necessary to render the graphics.
     // The texture is the pixel data
     // `texture_handle` is a cloneable reference to the texture
@@ -144,8 +143,7 @@ fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
         let texture_storage = world.read_resource::<AssetStorage<Texture>>();
         loader.load(
             "texture/spritesheet.png",
-            PngFormat,
-            TextureMetadata::srgb_scale(),
+            ImageFormat::default(),
             (),
             &texture_storage,
         )
@@ -155,8 +153,7 @@ fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
     let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
     loader.load(
         "texture/spritesheet.ron", // Here we load the associated ron file
-        SpriteSheetFormat,
-        texture_handle, // We pass it the handle of the texture we want it to use
+        SpriteSheetFormat(texture_handle),
         (),
         &sprite_sheet_store,
     )

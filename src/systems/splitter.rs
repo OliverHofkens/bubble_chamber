@@ -1,6 +1,7 @@
+use amethyst::core::Hidden;
 use amethyst::core::Transform;
 use amethyst::ecs::{Entities, Join, Read, System, Write, WriteStorage};
-use amethyst::renderer::{Hidden, SpriteRender, Transparent};
+use amethyst::renderer::{SpriteRender, Transparent};
 use log::info;
 use rand::distributions::{Distribution, Exp};
 use rand::thread_rng;
@@ -84,7 +85,10 @@ impl<'s> System<'s> for ParticleSplitter {
                     LifeTime::new(decay_distribution.sample(&mut rng) as f32),
                     &mut lifetimes,
                 )
-                .with(Trace::new(location[0], location[1]), &mut traces)
+                .with(
+                    Trace::new(location[0].as_f32(), location[1].as_f32()),
+                    &mut traces,
+                )
                 .with(transform, &mut transforms)
                 .with(velocity, &mut velocities)
                 .with(sprite.clone(), &mut sprites)

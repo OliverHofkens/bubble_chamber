@@ -1,7 +1,6 @@
 use crate::components::Trace;
-use amethyst::core::Transform;
+use amethyst::core::{Hidden, Transform};
 use amethyst::ecs::{Join, ReadStorage, System, WriteStorage};
-use amethyst::renderer::Hidden;
 
 pub struct TraceBuilder;
 
@@ -15,7 +14,7 @@ impl<'s> System<'s> for TraceBuilder {
     fn run(&mut self, (transforms, mut traces, hiddens): Self::SystemData) {
         for (transform, trace, _) in (&transforms, &mut traces, !&hiddens).join() {
             let trans = transform.translation();
-            trace.points.push([trans[0], trans[1]]);
+            trace.points.push([trans[0].as_f32(), trans[1].as_f32()]);
         }
     }
 }
