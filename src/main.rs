@@ -3,7 +3,7 @@ use amethyst::{
     core::transform::TransformBundle,
     prelude::*,
     renderer::{types::DefaultBackend, RenderingSystem, SpriteSheet},
-    utils::application_root_dir,
+    utils::{application_root_dir, fps_counter::FPSCounterBundle},
     window::WindowBundle,
 };
 
@@ -43,8 +43,8 @@ fn main() -> amethyst::Result<()> {
             RenderGraph::default(),
         ))
         .with_bundle(TransformBundle::new())?
-        // .with_bundle(FPSCounterBundle::default())?
-        // .with(systems::LogFPS, "log_fps", &[])
+        .with_bundle(FPSCounterBundle::default())?
+        .with(systems::LogFPS, "log_fps", &[])
         .with(systems::LifeTimeCounter, "lifetime_counter", &[])
         .with(systems::MoveByVelocity, "move_by_velocity", &[])
         .with(systems::MagneticForce, "magnetic_force", &[])
