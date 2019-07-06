@@ -1,7 +1,7 @@
 use amethyst::{
     ecs::{ReadExpect, Resources, SystemData},
     renderer::{
-        pass::DrawFlat2DDesc,
+        pass::DrawFlat2DTransparentDesc,
         rendy::{
             factory::Factory,
             graph::{
@@ -83,7 +83,7 @@ impl GraphCreator<DefaultBackend> for RenderGraph {
         // We pass the subpass builder a description of our pass for construction
         let pass = graph_builder.add_node(
             SubpassBuilder::new()
-                .with_group(DrawFlat2DDesc::new().builder())
+                .with_group(DrawFlat2DTransparentDesc::new().builder())
                 .with_color(color)
                 .with_depth_stencil(depth)
                 .into_pass(),

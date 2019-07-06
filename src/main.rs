@@ -2,7 +2,10 @@ use amethyst::{
     assets::Processor,
     core::transform::TransformBundle,
     prelude::*,
-    renderer::{types::DefaultBackend, RenderingSystem, SpriteSheet},
+    renderer::{
+        sprite_visibility::SpriteVisibilitySortingSystem, types::DefaultBackend, RenderingSystem,
+        SpriteSheet,
+    },
     utils::{application_root_dir, fps_counter::FPSCounterBundle},
     window::WindowBundle,
 };
@@ -43,6 +46,11 @@ fn main() -> amethyst::Result<()> {
             RenderGraph::default(),
         ))
         .with_bundle(TransformBundle::new())?
+        .with(
+            SpriteVisibilitySortingSystem::new(),
+            "sprite_visibility_system",
+            &["transform_system"],
+        )
         .with_bundle(FPSCounterBundle::default())?
         .with(systems::LogFPS, "log_fps", &[])
         .with(systems::LifeTimeCounter, "lifetime_counter", &[])
