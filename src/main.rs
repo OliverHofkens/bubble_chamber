@@ -71,6 +71,7 @@ fn main() -> amethyst::Result<()> {
             "svg_path_builder",
             &["move_by_velocity"],
         )
+        .with(systems::PersistentTrail, "persistent_trail", &["move_by_velocity"])
         .with(
             systems::ExpireLifetimes,
             "expire_lifetimes",

@@ -8,4 +8,4 @@ pub use self::cleanup::{Cleanup, ExpireLifetimes};
 pub use self::core::{LifeTimeCounter, LogFPS};
 pub use self::forces::{Exhaustion, MagneticForce, MoveByVelocity};
 pub use self::splitter::ParticleSplitter;
-pub use self::trace::TraceBuilder;
+pub use self::trace::{PersistentTrail, TraceBuilder};
