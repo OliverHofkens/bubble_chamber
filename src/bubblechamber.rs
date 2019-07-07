@@ -109,8 +109,11 @@ fn initialise_particles(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
             .with(transform)
             .with(velocity)
             .with(sprite_render.clone())
-            .with(Trace::new(location[0], location[1]))
             .with(Transparent);
+
+        if total_charge != 0 {
+            entity = entity.with(Trace::new(location[0], location[1]));
+        }
 
         if total_charge == 0 {
             // Neutral particles do not leave tracks
@@ -131,7 +134,7 @@ fn initialise_magnetic_field(world: &mut World) {
 }
 
 fn initialise_svg(world: &mut World) {
-    world.add_resource(SVGBuilder { paths: Vec::new() });
+    world.add_resource(SVGBuilder::default());
 }
 
 fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {

@@ -1,15 +1,14 @@
 use amethyst::core::Hidden;
 use amethyst::core::Transform;
-use amethyst::ecs::{Entities, Join, Read, System, Write, WriteStorage};
+use amethyst::ecs::{Entities, Join, Read, System, WriteStorage};
 use amethyst::renderer::{SpriteRender, Transparent};
-use log::info;
+// use log::info;
 use rand::distributions::{Distribution, Exp};
 use rand::thread_rng;
 use rand::Rng;
 
-use crate::components::{LifeTime, Particle, Trace, Velocity};
+use crate::components::{DeleteFlag, LifeTime, Particle, Trace, Velocity};
 use crate::config::MultiParticlesConfig;
-use crate::resources::SVGBuilder;
 
 pub struct ParticleSplitter;
 
@@ -24,7 +23,7 @@ impl<'s> System<'s> for ParticleSplitter {
         WriteStorage<'s, Transparent>,
         WriteStorage<'s, Hidden>,
         WriteStorage<'s, Trace>,
-        Write<'s, SVGBuilder>,
+        WriteStorage<'s, DeleteFlag>,
         Read<'s, MultiParticlesConfig>,
     );
 
@@ -40,20 +39,19 @@ impl<'s> System<'s> for ParticleSplitter {
             mut transparents,
             mut hidden,
             mut traces,
-            mut svgbuilder,
+            mut deletes,
             particles_config,
         ): Self::SystemData,
     ) {
         let mut new_particles = Vec::new();
 
-        for (entity, particle, lifetime, transform, velocity, sprite, trace) in (
+        for (entity, particle, lifetime, transform, velocity, sprite) in (
             &entities,
             &particles,
             &lifetimes,
             &transforms,
             &velocities,
             &sprites,
-            &traces,
         )
             .join()
         {
@@ -61,12 +59,11 @@ impl<'s> System<'s> for ParticleSplitter {
                 continue;
             }
 
+            deletes
+                .insert(entity, DeleteFlag {})
+                .expect("Entity was already marked for deletion!");
             new_particles
                 .append(&mut self.split_particle(&particle, &transform, &velocity, &sprite));
-
-            // TODO: refactor this common logic:
-            svgbuilder.paths.push(trace.points.clone());
-            entities.delete(entity).expect("Failed to delete particle.");
         }
 
         let decay_rate = particles_config.decay_rate;
@@ -85,14 +82,17 @@ impl<'s> System<'s> for ParticleSplitter {
                     LifeTime::new(decay_distribution.sample(&mut rng) as f32),
                     &mut lifetimes,
                 )
-                .with(
-                    Trace::new(location[0].as_f32(), location[1].as_f32()),
-                    &mut traces,
-                )
-                .with(transform, &mut transforms)
+                .with(transform.clone(), &mut transforms)
                 .with(velocity, &mut velocities)
                 .with(sprite.clone(), &mut sprites)
                 .with(Transparent, &mut transparents);
+
+            if total_charge != 0 {
+                entity = entity.with(
+                    Trace::new(location[0].as_f32(), location[1].as_f32()),
+                    &mut traces,
+                );
+            }
 
             if total_charge == 0 {
                 // Particles without charge don't show
@@ -145,7 +145,7 @@ impl ParticleSplitter {
                 continue;
             }
 
-            info!("New particle with charge {},{},{}", pos, neutral, neg);
+            // info!("New particle with charge {},{},{}", pos, neutral, neg);
 
             charges_left[0] -= pos;
             charges_left[1] -= neutral;

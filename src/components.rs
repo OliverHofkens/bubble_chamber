@@ -1,5 +1,5 @@
 use amethyst::core::math::Vector3;
-use amethyst::ecs::prelude::{Component, DenseVecStorage};
+use amethyst::ecs::prelude::{Component, DenseVecStorage, NullStorage, VecStorage};
 
 #[derive(Clone)]
 pub struct Velocity {
@@ -7,7 +7,7 @@ pub struct Velocity {
 }
 
 impl Component for Velocity {
-    type Storage = DenseVecStorage<Self>;
+    type Storage = VecStorage<Self>;
 }
 
 #[derive(Debug)]
@@ -34,7 +34,7 @@ impl Particle {
 }
 
 impl Component for Particle {
-    type Storage = DenseVecStorage<Self>;
+    type Storage = VecStorage<Self>;
 }
 
 pub struct LifeTime {
@@ -43,7 +43,7 @@ pub struct LifeTime {
 }
 
 impl Component for LifeTime {
-    type Storage = DenseVecStorage<Self>;
+    type Storage = VecStorage<Self>;
 }
 
 impl LifeTime {
@@ -69,4 +69,11 @@ impl Trace {
             points: vec![[start_x, start_y]],
         }
     }
+}
+
+#[derive(Default)]
+pub struct DeleteFlag;
+
+impl Component for DeleteFlag {
+    type Storage = NullStorage<Self>;
 }

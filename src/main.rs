@@ -46,20 +46,41 @@ fn main() -> amethyst::Result<()> {
             RenderGraph::default(),
         ))
         .with_bundle(TransformBundle::new())?
+        // .with_bundle(FPSCounterBundle::default())?
+        // .with(systems::LogFPS, "log_fps", &[])
+        .with(systems::LifeTimeCounter, "lifetime_counter", &[])
+        .with(systems::MagneticForce, "magnetic_force", &[])
+        .with(systems::Exhaustion, "exhaustion", &[])
+        .with(
+            systems::MoveByVelocity,
+            "move_by_velocity",
+            &["magnetic_force", "exhaustion"],
+        )
         .with(
             SpriteVisibilitySortingSystem::new(),
             "sprite_visibility_system",
-            &["transform_system"],
+            &["move_by_velocity"],
         )
-        .with_bundle(FPSCounterBundle::default())?
-        .with(systems::LogFPS, "log_fps", &[])
-        .with(systems::LifeTimeCounter, "lifetime_counter", &[])
-        .with(systems::MoveByVelocity, "move_by_velocity", &[])
-        .with(systems::MagneticForce, "magnetic_force", &[])
-        .with(systems::Exhaustion, "exhaustion", &[])
-        .with(systems::ParticleSplitter, "particle_splitter", &[])
-        .with(systems::TraceBuilder, "svg_path_builder", &[])
-        .with(systems::Cleanup, "cleanup", &[]);
+        .with(
+            systems::ParticleSplitter,
+            "particle_splitter",
+            &["move_by_velocity"],
+        )
+        .with(
+            systems::TraceBuilder,
+            "svg_path_builder",
+            &["move_by_velocity"],
+        )
+        .with(
+            systems::ExpireLifetimes,
+            "expire_lifetimes",
+            &["move_by_velocity"],
+        )
+        .with(
+            systems::Cleanup,
+            "cleanup",
+            &["particle_splitter", "expire_lifetimes"],
+        );
 
     let mut game = Application::build(assets_dir, BubbleChamber)
         .expect("Failed to initialize")
