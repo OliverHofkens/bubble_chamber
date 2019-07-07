@@ -62,6 +62,11 @@ fn main() -> amethyst::Result<()> {
             &["move_by_velocity"],
         )
         .with(
+            systems::ExpireLifetimes,
+            "expire_lifetimes",
+            &["move_by_velocity"],
+        )
+        .with(
             systems::ParticleSplitter,
             "particle_splitter",
             &["move_by_velocity"],
@@ -69,13 +74,12 @@ fn main() -> amethyst::Result<()> {
         .with(
             systems::TraceBuilder,
             "svg_path_builder",
-            &["move_by_velocity"],
+            &["particle_splitter"],
         )
-        .with(systems::PersistentTrail, "persistent_trail", &["move_by_velocity"])
         .with(
-            systems::ExpireLifetimes,
-            "expire_lifetimes",
-            &["move_by_velocity"],
+            systems::PersistentTrail,
+            "persistent_trail",
+            &["particle_splitter"],
         )
         .with(
             systems::Cleanup,

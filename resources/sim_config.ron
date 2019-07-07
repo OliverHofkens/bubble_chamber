@@ -1,18 +1,23 @@
 (
     chamber: (
-        width: 3840.0,
-        height: 2160.0,
+        width: 2880.0,
+        height: 1800.0,
     ),
     magnetic_field: (
-        field: [0.0, 0.0, 3.0],
+        field: [0.0, 0.0, 2.0],
     ),
     particles: (
-        decay_rate: 0.75,
+        decay_rate: 0.6,
         at_start: [
             (
-                charges: (30, 100, 30),
-                location: [0.0, 1080.0, 0.0],
-                velocity: [1000.0, 0.0, 0.0],
+                charges: (10, 20, 10),
+                location: [100.0, 900.0, 0.0],
+                velocity: [750.0, 0.0, 0.0],
+            ),
+            (
+                charges: (10, 20, 10),
+                location: [100.0, 900.0, 0.0],
+                velocity: [750.0, 0.0, 0.0],
             )
         ]
     )

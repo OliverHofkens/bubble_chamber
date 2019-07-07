@@ -1,4 +1,4 @@
 (
   title: "BubbleChamber",
-  dimensions: Some((1920, 1080))
+  dimensions: Some((2880, 1800))
 )
