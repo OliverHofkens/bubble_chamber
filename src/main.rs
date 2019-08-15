@@ -1,31 +1,24 @@
 use amethyst::{
-    assets::Processor,
     core::transform::TransformBundle,
     prelude::*,
-    renderer::{
-        sprite_visibility::SpriteVisibilitySortingSystem, types::DefaultBackend, RenderingSystem,
-        SpriteSheet,
-    },
-    utils::{application_root_dir, fps_counter::FPSCounterBundle},
-    window::WindowBundle,
+    renderer::{types::DefaultBackend, RenderFlat2D, RenderToWindow, RenderingBundle},
+    utils::{application_root_dir, fps_counter::FpsCounterBundle},
 };
 
 mod bubblechamber;
 mod components;
 mod config;
-mod render_graph;
 mod resources;
 mod systems;
 
 use crate::bubblechamber::BubbleChamber;
 use crate::config::SimulationConfig;
-use crate::render_graph::RenderGraph;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
 
     let app_root = application_root_dir()?;
-    let resources_dir = app_root.join("resources");
+    let resources_dir = app_root.join("config");
     let display_config_path = resources_dir.join("display_config.ron");
 
     let assets_dir = app_root.join("assets");
@@ -34,20 +27,17 @@ fn main() -> amethyst::Result<()> {
     let simulation_config = SimulationConfig::load(&simulation_config_path);
 
     let game_data = GameDataBuilder::default()
-        .with_bundle(WindowBundle::from_config_path(display_config_path))?
-        .with(
-            Processor::<SpriteSheet>::new(),
-            "sprite_sheet_processor",
-            &[],
-        )
-        // The renderer must be executed on the same thread consecutively, so we initialize it as thread_local
-        // which will always execute on the main thread.
-        .with_thread_local(RenderingSystem::<DefaultBackend, _>::new(
-            RenderGraph::default(),
-        ))
         .with_bundle(TransformBundle::new())?
-        // .with_bundle(FPSCounterBundle::default())?
-        // .with(systems::LogFPS, "log_fps", &[])
+        .with_bundle(
+            RenderingBundle::<DefaultBackend>::new()
+                .with_plugin(
+                    RenderToWindow::from_config_path(display_config_path)
+                        .with_clear([0.0, 0.0, 0.0, 1.0]),
+                )
+                .with_plugin(RenderFlat2D::default()),
+        )?
+        // .with_bundle(FpsCounterBundle::default())?
+        // .with(systems::LogFps, "log_fps", &[])
         .with(systems::LifeTimeCounter, "lifetime_counter", &[])
         .with(systems::MagneticForce, "magnetic_force", &[])
         .with(systems::Exhaustion, "exhaustion", &[])
@@ -55,11 +45,6 @@ fn main() -> amethyst::Result<()> {
             systems::MoveByVelocity,
             "move_by_velocity",
             &["magnetic_force", "exhaustion"],
-        )
-        .with(
-            SpriteVisibilitySortingSystem::new(),
-            "sprite_visibility_system",
-            &["move_by_velocity"],
         )
         .with(
             systems::ExpireLifetimes,

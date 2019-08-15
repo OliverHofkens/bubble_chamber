@@ -11,7 +11,7 @@ impl<'s> System<'s> for TraceBuilder {
     fn run(&mut self, (transforms, mut traces): Self::SystemData) {
         for (transform, trace) in (&transforms, &mut traces).join() {
             let trans = transform.translation();
-            trace.points.push([trans[0].as_f32(), trans[1].as_f32()]);
+            trace.points.push([trans[0], trans[1]]);
         }
     }
 }

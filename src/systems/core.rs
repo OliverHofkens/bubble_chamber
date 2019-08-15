@@ -1,7 +1,7 @@
 use crate::components::LifeTime;
 use amethyst::core::timing::Time;
 use amethyst::ecs::{Join, Read, System, WriteStorage};
-use amethyst::utils::fps_counter::FPSCounter;
+use amethyst::utils::fps_counter::FpsCounter;
 use log::info;
 
 pub struct LifeTimeCounter;
@@ -16,10 +16,10 @@ impl<'s> System<'s> for LifeTimeCounter {
     }
 }
 
-pub struct LogFPS;
+pub struct LogFps;
 
-impl<'s> System<'s> for LogFPS {
-    type SystemData = (Read<'s, FPSCounter>);
+impl<'s> System<'s> for LogFps {
+    type SystemData = (Read<'s, FpsCounter>);
 
     fn run(&mut self, fps_counter: Self::SystemData) {
         info!("AVG FPS: {}", fps_counter.sampled_fps());

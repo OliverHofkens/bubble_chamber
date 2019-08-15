@@ -1,6 +1,5 @@
-use amethyst::core::math::Vector3;
 use amethyst::core::timing::Time;
-use amethyst::core::{Float, Transform};
+use amethyst::core::Transform;
 use amethyst::ecs::{Join, Read, ReadExpect, ReadStorage, System, WriteStorage};
 
 use crate::components::{Particle, Velocity};
@@ -19,12 +18,7 @@ impl<'s> System<'s> for MoveByVelocity {
     fn run(&mut self, (particles, velocities, mut transforms, time): Self::SystemData) {
         for (_particle, velocity, transform) in (&particles, &velocities, &mut transforms).join() {
             let movements = velocity.v * time.delta_seconds();
-            let movements_amethyst = Vector3::new(
-                Float::from_f32(movements[0]),
-                Float::from_f32(movements[1]),
-                Float::from_f32(movements[2]),
-            );
-            transform.prepend_translation(movements_amethyst);
+            transform.prepend_translation(movements);
         }
     }
 }

@@ -89,7 +89,7 @@ impl<'s> System<'s> for ParticleSplitter {
 
             if total_charge != 0 {
                 entity = entity.with(
-                    Trace::new(location[0].as_f32(), location[1].as_f32()),
+                    Trace::new(location[0], location[1]),
                     &mut traces,
                 );
             }
