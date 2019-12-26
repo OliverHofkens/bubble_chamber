@@ -130,11 +130,11 @@ fn initialise_magnetic_field(world: &mut World) {
         config.field
     };
 
-    world.add_resource(MagneticField { field: field });
+    world.insert(MagneticField { field: field });
 }
 
 fn initialise_svg(world: &mut World) {
-    world.add_resource(SVGBuilder::default());
+    world.insert(SVGBuilder::default());
 }
 
 fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
